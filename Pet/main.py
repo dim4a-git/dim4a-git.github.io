@@ -1,33 +1,19 @@
+import animator
 import brain
-import world
+import trainer
 
 def main():
     brain.Brain()
-    w = world.World()
-    batch_min = 0
-    batch_aver = 0
-    batch_max = 0
-    batch_size = 20
+    file_name = "./brain.model"
 
-    for i in range(1000):
-        w.epoch(100)
-        (a, d) = w.get_pets()
-        history = []
-        for p in d:
-            (areas, directions) = p.get_history()
-            history.append({"areas": areas, "directions": directions})
-        lifes_lengths = brain.Brain().train(history)
+    # brain.Brain().load(file_name)
 
-        batch_min += lifes_lengths["min_length"]
-        batch_max += lifes_lengths["max_length"]
-        batch_aver += lifes_lengths["average_length"]
+    for i in range(100):
+        animator.animate_world()
+        print(i)
+        trainer.train(100)
 
-        if i % batch_size == batch_size - 1:
-            print(int(i / batch_size + 1),
-                  int(batch_min / batch_size),
-                  int(batch_aver / batch_size),
-                  int(batch_max / batch_size))
-            batch_max = batch_aver = batch_min = 0
+    brain.Brain().save(file_name)
 
     print("End")
 

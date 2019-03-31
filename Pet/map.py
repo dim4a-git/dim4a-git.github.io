@@ -14,6 +14,11 @@ class Map(object):
         self._map.fill(GLOB.SQUARE_TYPE_EMPTY)
 
 
+    def get_map(self
+        ):
+        return self._map
+
+
     def get_square_value(self,
         x,
         y

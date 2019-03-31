@@ -1,4 +1,5 @@
 import numpy as np
+import random
 from tensorflow import keras
 
 import project_types as GLOB
@@ -19,7 +20,7 @@ class Brain(object, metaclass=Brain_Singleton):
 
     def __init__(self
         ):
-        self._DIRECTIONS_NUMBER = 8
+        self._DIRECTIONS_NUMBER = 9
         len = GLOB.PET_VIEW_DIAMETER
         self._net = keras.Sequential()
         self._net.add(keras.layers.Flatten(input_shape=(len, len)),)
@@ -38,7 +39,27 @@ class Brain(object, metaclass=Brain_Singleton):
         area_3d = visible_area.reshape((1, GLOB.PET_VIEW_DIAMETER, GLOB.PET_VIEW_DIAMETER))
         directions = self._net.predict(area_3d)
 
-        return np.argmax(directions)
+        rand_value = random.random()
+        sum = directions[0][0]
+        for d in range(self._DIRECTIONS_NUMBER - 1):
+            if rand_value < sum:
+                return d
+            sum += directions[0][d + 1]
+
+        return self._DIRECTIONS_NUMBER - 1
+        # return np.argmax(directions)
+
+
+    def load(self,
+        file_name
+        ):
+        self._net = keras.models.load_model(file_name)
+
+
+    def save(self,
+        file_name
+        ):
+        self._net.save(file_name)
 
 
     def train(self,
@@ -49,8 +70,8 @@ class Brain(object, metaclass=Brain_Singleton):
         Y = None
 
         for pet_history in history:
-            if len(pet_history["areas"]) < lifes_lengths["max_length"]:
-                continue
+            # if len(pet_history["areas"]) < lifes_lengths["max_length"]:
+            #     continue
             (x, y) = self._build_train_batch(pet_history, lifes_lengths)
             X = x if X is None else np.vstack((X, x))
             Y = y if Y is None else np.vstack((Y, y))
@@ -84,9 +105,9 @@ class Brain(object, metaclass=Brain_Singleton):
 
         false_value = (1 - true_value) / (n - 1)
 
-        if aver_len <= pet_life_length:
-            false_value = 0
-            true_value = 1
+        # if aver_len <= pet_life_length:
+        #     false_value = 0
+        #     true_value = 1
 
         y.fill(false_value)
         y[0, direction] = true_value
@@ -105,10 +126,6 @@ class Brain(object, metaclass=Brain_Singleton):
             y = np.zeros((1, self._DIRECTIONS_NUMBER))
             direction = pet_history["directions"][i]
             self._build_result_sample(lifes_lengths, pet_life_length, direction, y)
-            # if X is None:
-            #     X = x.copy()
-            # else:
-            #     X = np.hstack((X, x))
             X = x.copy() if X is None else np.vstack([X, x])
             Y = y.copy() if Y is None else np.vstack([Y, y])
 

@@ -69,9 +69,7 @@ class Pet(object):
         brain_direction
         ):
         corr_dir = brain_direction
-        if 3 < corr_dir:
-            corr_dir += 1
-        dx = corr_dir % 3 - 1
-        dy = corr_dir / 3 - 1
+        dx = int(corr_dir) % 3 - 1
+        dy = int(corr_dir / 3) - 1
 
-        return (int(dx), int(dy))
+        return (dx, dy)

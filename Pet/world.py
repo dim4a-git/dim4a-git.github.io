@@ -24,6 +24,11 @@ class World(object):
             self.step()
 
 
+    def get_map(self
+        ):
+        return self._map
+
+
     def get_pets(self
         ):
         return (self._alive_pets, self._dead_pets)
