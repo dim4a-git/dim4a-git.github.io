@@ -1,4 +1,5 @@
 import brain
+import project_types as GLOB
 import world
 
 
@@ -6,6 +7,7 @@ def train(
     epochs_number,
     batch_size = 0
     ):
+    brain.Brain().set_direction_choice_type(GLOB.DIRECTION_CHOICE_MULTINOMIAL)
     w = world.World()
     history = []
 

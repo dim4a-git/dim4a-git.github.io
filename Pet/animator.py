@@ -1,6 +1,7 @@
 import tkinter
 import random
 
+import brain
 import project_types as GLOB
 import world
 
@@ -10,6 +11,7 @@ offset_length = 10
 
 
 def animate_world():
+    brain.Brain().set_direction_choice_type(GLOB.DIRECTION_CHOICE_STRICT)
     w = world.World()
     width = w.get_map().width()
     height = w.get_map().height()

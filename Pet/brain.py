@@ -20,6 +20,7 @@ class Brain(object, metaclass=Brain_Singleton):
 
     def __init__(self
         ):
+        self._direction_choice_type = GLOB.DIRECTION_CHOICE_STRICT
         self._DIRECTIONS_NUMBER = 9
         len = GLOB.PET_VIEW_DIAMETER
         self._net = keras.Sequential()
@@ -39,15 +40,18 @@ class Brain(object, metaclass=Brain_Singleton):
         area_3d = visible_area.reshape((1, GLOB.PET_VIEW_DIAMETER, GLOB.PET_VIEW_DIAMETER))
         directions = self._net.predict(area_3d)
 
-        rand_value = random.random()
-        sum = directions[0][0]
-        for d in range(self._DIRECTIONS_NUMBER - 1):
-            if rand_value < sum:
-                return d
-            sum += directions[0][d + 1]
-
-        return self._DIRECTIONS_NUMBER - 1
-        # return np.argmax(directions)
+        if self._direction_choice_type == GLOB.DIRECTION_CHOICE_STRICT:
+            return np.argmax(directions)
+        elif self._direction_choice_type == GLOB.DIRECTION_CHOICE_MULTINOMIAL:
+            rand_value = random.random()
+            sum = directions[0][0]
+            for d in range(self._DIRECTIONS_NUMBER - 1):
+                if rand_value < sum:
+                    return d
+                sum += directions[0][d + 1]
+            return self._DIRECTIONS_NUMBER - 1
+        else:
+            return np.argmax(directions)
 
 
     def load(self,
@@ -62,6 +66,12 @@ class Brain(object, metaclass=Brain_Singleton):
         self._net.save(file_name)
 
 
+    def set_direction_choice_type(self,
+        type
+        ):
+        self._direction_choice_type = type
+
+
     def train(self,
         history # array of dicts: [{"areas", "directions"}]
         ):
@@ -70,8 +80,6 @@ class Brain(object, metaclass=Brain_Singleton):
         Y = None
 
         for pet_history in history:
-            # if len(pet_history["areas"]) < lifes_lengths["max_length"]:
-            #     continue
             (x, y) = self._build_train_batch(pet_history, lifes_lengths)
             X = x if X is None else np.vstack((X, x))
             Y = y if Y is None else np.vstack((Y, y))
@@ -81,36 +89,32 @@ class Brain(object, metaclass=Brain_Singleton):
         return lifes_lengths
 
 
-    def _build_result_sample(self,
-        lifes_lengths,
-        pet_life_length,
+    def _build_sample_on_keep_success(self,
         direction,
         y
         ):
-        if lifes_lengths["min_length"] == lifes_lengths["max_length"]:
-            y.fill(1 / self._DIRECTIONS_NUMBER)
-            return
+        y.fill(0)
+        y[0][direction] = 1
 
-        max_len = lifes_lengths["max_length"]
-        min_len = lifes_lengths["min_length"]
-        aver_len = lifes_lengths["average_length"]
-        n = self._DIRECTIONS_NUMBER
 
-        if pet_life_length < aver_len:
-            koef = 1 - (aver_len - pet_life_length) / (aver_len - min_len)
-            true_value = koef * 1 / n
+    def _build_sample_on_avoid_failure(self,
+        ):
+        pass
+
+
+    def _build_train_sample(self,
+        lifes_lengths,
+        pet_life_length,
+        direction,
+        x,
+        y
+        ):
+        if lifes_lengths["average_length"] < pet_life_length:
+            self._build_sample_on_keep_success(direction, y)
+        # elif pet_life_length < lifes_lengths["average_length"]:
+        #     self._build_sample_on_avoid_failure()
         else:
-            koef = (pet_life_length - aver_len) / (max_len - aver_len)
-            true_value = koef * (1 - 1 / n) + 1 / n
-
-        false_value = (1 - true_value) / (n - 1)
-
-        # if aver_len <= pet_life_length:
-        #     false_value = 0
-        #     true_value = 1
-
-        y.fill(false_value)
-        y[0, direction] = true_value
+            y = self._net.predict(x)
 
 
     def _build_train_batch(self,
@@ -125,7 +129,7 @@ class Brain(object, metaclass=Brain_Singleton):
             x = pet_history["areas"][i].reshape((1, GLOB.PET_VIEW_DIAMETER, GLOB.PET_VIEW_DIAMETER))
             y = np.zeros((1, self._DIRECTIONS_NUMBER))
             direction = pet_history["directions"][i]
-            self._build_result_sample(lifes_lengths, pet_life_length, direction, y)
+            self._build_train_sample(lifes_lengths, pet_life_length, direction, x, y)
             X = x.copy() if X is None else np.vstack([X, x])
             Y = y.copy() if Y is None else np.vstack([Y, y])
 
