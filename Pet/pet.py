@@ -18,7 +18,8 @@ class Pet(object):
     def add_food(self,
         food_count
         ):
-        self._food_reserve = min(self._food_reserve + food_count, GLOB.PET_FOOD_RESERVE)
+        # self._food_reserve = min(self._food_reserve + food_count, GLOB.PET_FOOD_RESERVE)
+        self._food_reserve += food_count
 
 
     def calculate_direction(self,

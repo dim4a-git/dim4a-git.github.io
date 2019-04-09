@@ -1,5 +1,4 @@
 import tkinter
-import random
 
 import brain
 import project_types as GLOB
@@ -10,7 +9,8 @@ pix_per_square = 20
 offset_length = 10
 
 
-def animate_world():
+def animate_world(
+    ):
     brain.Brain().set_direction_choice_type(GLOB.DIRECTION_CHOICE_STRICT)
     w = world.World()
     width = w.get_map().width()
@@ -33,7 +33,7 @@ def animate_world():
         if not _draw_map(canvas, w.get_map()):
             root.destroy()
             return
-        root.after(500, _animate)
+        root.after(1000, _animate)
         w.step()
 
     _animate()

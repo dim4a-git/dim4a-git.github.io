@@ -60,6 +60,12 @@ class Map(object):
         return (y + GLOB.WORLD_HEIGHT + dy) % GLOB.WORLD_HEIGHT
 
 
+    def set_map(self,
+        map
+        ):
+        self._map = map
+
+
     def set_random_square_value(self,
         value
         ):
