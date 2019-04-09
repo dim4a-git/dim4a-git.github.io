@@ -25,8 +25,8 @@ class Brain(object, metaclass=Brain_Singleton):
         len = GLOB.PET_VIEW_DIAMETER
         self._net = keras.Sequential()
         self._net.add(keras.layers.Flatten(input_shape=(len, len)),)
-        self._net.add(keras.layers.Dense(10, activation='relu'))
-        self._net.add(keras.layers.Dense(10, activation='relu'))
+        self._net.add(keras.layers.Dense(10, activation='sigmoid'))
+        self._net.add(keras.layers.Dense(10, activation='sigmoid'))
         self._net.add(keras.layers.Dense(self._DIRECTIONS_NUMBER, activation='softmax'))
         self._net.compile(
             optimizer='adam',

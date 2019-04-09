@@ -30,11 +30,11 @@ def animate_world():
                            i * pix_per_square + offset_length, height * pix_per_square + offset_length)
 
     def _animate():
-        w.step()
         if not _draw_map(canvas, w.get_map()):
             root.destroy()
             return
         root.after(500, _animate)
+        w.step()
 
     _animate()
 

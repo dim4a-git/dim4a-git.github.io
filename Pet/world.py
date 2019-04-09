@@ -12,6 +12,7 @@ class World(object):
         self._alive_pets = []
         self._dead_pets = []
         self._map = world_map.Map()
+        self._food_readiness = 0.1
 
         self._initialize()
 
@@ -92,8 +93,10 @@ class World(object):
 
     def _generate_food(self
         ):
-        for _ in range(GLOB.FOOD_GROW_SPEED):
+        self._food_readiness += GLOB.FOOD_GROW_SPEED
+        while self._food_readiness > 1:
             self._map.set_random_square_value(GLOB.FOOD_SQUARE_PORTION)
+            self._food_readiness -= 1
 
 
     def _initialize(self
