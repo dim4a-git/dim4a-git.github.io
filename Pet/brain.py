@@ -22,16 +22,8 @@ class Brain(object, metaclass=Brain_Singleton):
         ):
         self._direction_choice_type = GLOB.DIRECTION_CHOICE_STRICT
         self._DIRECTIONS_NUMBER = 9
-        len = GLOB.PET_VIEW_DIAMETER
-        self._net = keras.Sequential()
-        self._net.add(keras.layers.Flatten(input_shape=(len, len)),)
-        self._net.add(keras.layers.Dense(10, activation='sigmoid'))
-        self._net.add(keras.layers.Dense(10, activation='sigmoid'))
-        self._net.add(keras.layers.Dense(self._DIRECTIONS_NUMBER, activation='softmax'))
-        self._net.compile(
-            optimizer='adam',
-            loss='categorical_crossentropy',
-            metrics=['accuracy'])
+        self._explorer_rate = 0.1
+        self._initialize()
 
 
     def calculate_direction(self,
@@ -43,21 +35,23 @@ class Brain(object, metaclass=Brain_Singleton):
         if self._direction_choice_type == GLOB.DIRECTION_CHOICE_STRICT:
             return np.argmax(directions)
         elif self._direction_choice_type == GLOB.DIRECTION_CHOICE_MULTINOMIAL:
-            rand_value = random.random()
-            sum = directions[0][0]
-            for d in range(self._DIRECTIONS_NUMBER - 1):
-                if rand_value < sum:
-                    return d
-                sum += directions[0][d + 1]
-            return self._DIRECTIONS_NUMBER - 1
-        else:
+            if random.random() < self._explorer_rate:
+                return np.random.randint(self._DIRECTIONS_NUMBER)
             return np.argmax(directions)
+            # return np.random.choice(self._DIRECTIONS_NUMBER, 1, p=directions[0])[0]
+        else:
+            return np.random.randint(self._DIRECTIONS_NUMBER)
 
 
     def load(self,
         file_name
         ):
         self._net = keras.models.load_model(file_name)
+
+
+    def refresh(self
+        ):
+        self._initialize()
 
 
     def save(self,
@@ -70,6 +64,12 @@ class Brain(object, metaclass=Brain_Singleton):
         type
         ):
         self._direction_choice_type = type
+
+
+    def set_explorer_rate(self,
+        explorer_rate
+        ):
+        self._explorer_rate = explorer_rate
 
 
     def train(self,
@@ -153,4 +153,17 @@ class Brain(object, metaclass=Brain_Singleton):
                 "average_length": total_lenght / len(history),
                 "max_length": max_length}
 
+
+    def _initialize(self
+        ):
+        len = GLOB.PET_VIEW_DIAMETER
+        self._net = keras.Sequential()
+        self._net.add(keras.layers.Flatten(input_shape=(len, len)),)
+        self._net.add(keras.layers.Dense(10, activation='sigmoid'))
+        self._net.add(keras.layers.Dense(10, activation='sigmoid'))
+        self._net.add(keras.layers.Dense(self._DIRECTIONS_NUMBER, activation='softmax'))
+        self._net.compile(
+            optimizer='adam',
+            loss='categorical_crossentropy',
+            metrics=['accuracy'])
 

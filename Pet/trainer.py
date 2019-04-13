@@ -23,6 +23,7 @@ def test(
         lifes_lengths["average_length"],
         int(lifes_lengths["max_length"]))
         )
+    return lifes_lengths
 
 
 def train(
@@ -32,6 +33,7 @@ def train(
     brain.Brain().set_direction_choice_type(GLOB.DIRECTION_CHOICE_MULTINOMIAL)
     w = world.World()
     history = []
+    lifes_lengths = {}
 
     for i in range(epochs_number):
         w.epoch(100)
@@ -55,3 +57,5 @@ def train(
             lifes_lengths["average_length"],
             int(lifes_lengths["max_length"]))
             )
+
+    return lifes_lengths
