@@ -6,11 +6,13 @@ import project_types as GLOB
 class Pet(object):
 
 
-    def __init__(self
+    def __init__(self,
+        x = -1,
+        y = -1
         ):
         self._food_reserve = GLOB.PET_FOOD_RESERVE
-        self._x = -1
-        self._y = -1
+        self._x = x
+        self._y = y
         self._areas = []
         self._brain_directions = []
 

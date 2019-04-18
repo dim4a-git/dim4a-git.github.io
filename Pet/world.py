@@ -35,6 +35,19 @@ class World(object):
         return (self._alive_pets, self._dead_pets)
 
 
+    def refresh(self
+        ):
+        self._initialize()
+
+
+    def set_pets(self,
+        alive_pets,
+        dead_pets = None
+        ):
+        self._alive_pets = alive_pets
+        self._dead_pets = [] if dead_pets is None else dead_pets
+
+
     def step(self
         ):
         new_coords = self._calculate_new_coordinates()

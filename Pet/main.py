@@ -3,6 +3,7 @@ import numpy as np
 import animator
 import brain
 import reachability_map
+import tester
 import trainer
 
 
@@ -19,36 +20,49 @@ def build_reach(
 
 def research(
     ):
-    def gen_file_name(
+    def gen_log_entry(
         explorer_rate,
         steps_number,
         sample_index,
         aver_life_length
         ):
-        return "brain rate={:.2f} steps={} sample={} aver={:.2f}.model".format(
+        return "rate={:.2f} steps={} sample={} aver={:.2f}".format(
             explorer_rate, steps_number, sample_index, aver_life_length
         )
 
-    explorer_rates = np.arange(0.1, 1, 0.1)
+    log_file_name = "test_log.txt"
+
+    explorer_rates = np.arange(0.1, 1.01, 0.1)
     steps_number = 2000
-    samples_number = 100
+    samples_number = 10
     control_length = 20
+
+    aver = 0
 
     for i_sample in range(samples_number):
         for rate in explorer_rates:
             brain.Brain().refresh()
             brain.Brain().set_explorer_rate(rate)
+
             for i_step in range(steps_number):
                 trainer.train(100)
                 if i_step % control_length == control_length - 1:
-                    aver = trainer.test(100)["average_length"]
-                    file_name = gen_file_name(rate, i_step + 1, i_sample, aver)
-                    brain.Brain().save(file_name)
+                    print(i_step + 1)
+                    aver = tester.get_map_reachability_quality()
+                    log_entry = gen_log_entry(rate, i_step + 1, i_sample, aver)
+                    with open(log_file_name, "a") as f:
+                        f.write(log_entry + "\n")
+
+            log_entry = gen_log_entry(rate, steps_number, i_sample, aver)
+            brain.Brain().save("Brains/brain" + log_entry + ".model")
+            with open(log_file_name, "a") as f:
+                f.write("\n")
 
 
 def test(
     ):
-    trainer.test(100)
+    quality = tester.get_map_reachability_quality()
+    print(quality)
 
 
 def train(
