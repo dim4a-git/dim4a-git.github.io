@@ -1,8 +1,8 @@
 import tkinter
 
-import brain
-import project_types as GLOB
-import world
+from ..globals import project_types as GLOB
+from ..universe import brain
+from ..universe import world
 
 
 pix_per_square = 20

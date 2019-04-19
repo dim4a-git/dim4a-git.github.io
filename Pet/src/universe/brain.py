@@ -2,7 +2,7 @@ import numpy as np
 import random
 from tensorflow import keras
 
-import project_types as GLOB
+from ..globals import project_types as GLOB
 
 
 

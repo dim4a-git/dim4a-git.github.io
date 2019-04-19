@@ -1,5 +1,5 @@
-import brain
-import project_types as GLOB
+from . import brain
+from ..globals import project_types as GLOB
 
 
 

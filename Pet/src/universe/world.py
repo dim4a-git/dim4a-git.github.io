@@ -1,6 +1,6 @@
-import map as world_map
-import pet
-import project_types as GLOB
+from . import map as world_map
+from . import pet
+from ..globals import project_types as GLOB
 
 
 
